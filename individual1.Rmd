@@ -1,0 +1,81 @@
+---
+title: "Lab02"
+author: "Ryan McNally"
+date: "9/14/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+library(classdata)
+data(choco)
+str(choco) 
+```
+1.  
+
+```{r}
+hist(choco$Rating, main="Distibution of chocloate ratings")
+boxplot(choco$Rating, main="Distibution of chocloate ratings")
+```
+</br> **As shown by the boxplot bellow, there are some outliers in this data. All of the points on the boxplot that are outside of the box and whisker plot are considered outliers. The histogram bellow also clearly shows that the data is left skewed.**
+
+
+2. How does the number of ratings depend on the country of bean origin?
+```{r}
+x<- table(choco$Rating, choco$CountryBeanOrigin)
+barplot(x, las=2,space=5)
+```
+</br>**Chocolate made in South America has higher ratings.**
+
+
+
+
+3.  Do ratings depend on the percentage of cocao?
+```{r}
+boxplot(choco$Rating ~ factor(choco$CocoaPercent), main="Ratings vs Cocoa Percentage", xlab="Percent of Cocoa", ylab="Rating")
+```
+</br>**Yes, the ratings do depend on the percent of cocoa. 70-70% cocoa have the highest ratings.** 
+
+
+
+How do different bean origins compare in terms of the flavor of chocolates?
+```{r}
+library(tidyverse)
+char1 <- table(choco$Characteristics1)
+char1_sorted <- char1[char1 > 70]
+choco_sorted <- filter(choco, Characteristics1 %in% names(char1_sorted))
+country_sorted <- table(choco$CountryBeanOrigin) %>% 
+  sort(decreasing = TRUE) %>%
+  head(8)
+choco %>% 
+  filter(Characteristics1 %in% names(char1_sorted)) %>%
+  filter(CountryBeanOrigin %in% names(country_sorted)) %>% 
+  ggplot() +
+  geom_bar(aes(x = CountryBeanOrigin, fill = Characteristics1), position = 'fill') + coord_flip() 
+tapply(choco$Rating, choco$CountryBeanOrigin, summary) %>%
+  head(5)
+```
+</br>**As shown in the graph above, beans from different countries of origin have different flavor profiles. From this alone, we can not conclude that beans from some places are better than others**
+
+
+
+
+"1. I would like to see is if the rating of cocoa beans have changed over time."
+```{r}
+now <- table(choco$Rating, choco$ReviewDate)
+barplot(now)
+cor(now)
+```
+</br> **There is no clear correlation between year and rating.**
+
+
+2. I would like to explore and see is if the cocoa percent is dependent on the country of origin of the bean.
+```{r}
+dep <- table(choco$CocoaPercent, choco$CountryBeanOrigin)
+#cor(dep)
+barplot(dep, las=3)
+```
+</br> **There is also no real correlation between the country of origin and cocoa percent. Most countries have an equal amount of each category.**
